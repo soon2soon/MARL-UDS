@@ -19,6 +19,10 @@ strategy trained and evaluated under the paper's exact protocol.
 
 **Full install/run/resume/multi-seed guide: [`docker/RUN_GUIDE.md`](docker/RUN_GUIDE.md) (한국어)**
 
+Scenarios: `SCENARIO=astlingen` (benchmark, default) or
+`SCENARIO=chaohu` (real-city combined sewer network, China — the
+paper's real-world case study).
+
 ```bash
 git clone https://github.com/soon2soon/MARL-UDS.git
 cd MARL-UDS && git checkout amaf

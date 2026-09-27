@@ -17,6 +17,15 @@ from utils.config import Arguments
 from functools import reduce
 HERE = os.path.dirname(__file__)
 
+# [amaf branch] Reproducibility: seed all RNGs from the SEED env var
+# (default 11), same as train_astlingen.py on this branch.
+import random
+import numpy as np
+SEED = int(os.environ.get('SEED', 11))
+random.seed(SEED)
+np.random.seed(SEED)
+tf.random.set_seed(SEED)
+
 def interact_steps(env,arg,event=None,train=True,base=None,on_policy=False):
     if type(arg) is Arguments:
         with tf.device('/cpu:0'):

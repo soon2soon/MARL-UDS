@@ -1,5 +1,6 @@
 #!/bin/bash
-# [amaf branch] Entry point: seed + select algorithm via env vars.
+# [amaf branch] Entry point: seed + select scenario/algorithm via env vars.
+#   SCENARIO: astlingen | chaohu  (default astlingen)
 #   ALGO:  AMAF | DQN | VDN | IQL  (default AMAF)
 #   SEED:  RNG seed                (default 11)
 #   RESUME: 1 = resume from saved weights + replay memory (if_load: True)
@@ -9,6 +10,7 @@
 # so concurrent multi-seed containers never collide.
 set -e
 
+SCENARIO="${SCENARIO:-astlingen}"
 ALGO="${ALGO:-AMAF}"
 SEED="${SEED:-11}"
 RESUME="${RESUME:-0}"
@@ -16,22 +18,23 @@ RESUME="${RESUME:-0}"
 export PYTHONPATH=/work/storm
 cd /work/storm
 
-python - "$ALGO" "$SEED" "$RESUME" <<'PYEOF'
+python - "$SCENARIO" "$ALGO" "$SEED" "$RESUME" <<'PYEOF'
 import os
 import sys
 
-algo, seed, resume = sys.argv[1], int(sys.argv[2]), sys.argv[3] == '1'
+scenario, algo = sys.argv[1], sys.argv[2]
+seed, resume = int(sys.argv[3]), sys.argv[4] == '1'
 path = os.environ.get('CONFIG_PATH', 'utils/config.yaml')
 lines = open(path).read().splitlines(keepends=True)
 
-# Bound the astlingen block (top-level keys have no leading space).
+# Bound the scenario block (top-level keys have no leading space).
 start = next(i for i, ln in enumerate(lines)
-             if ln.rstrip() == 'astlingen:')
+             if ln.rstrip() == scenario + ':')
 end = next((i for i in range(start + 1, len(lines))
             if lines[i].strip() and not lines[i].startswith(' ')
             and lines[i].rstrip().endswith(':')), len(lines))
 
-# 1) flip the strategy selector inside the astlingen block only
+# 1) flip the strategy selector inside the scenario block only
 for j in range(start + 1, min(start + 3, len(lines))):
     if lines[j].lstrip().startswith('train:'):
         lines[j] = '  train: %s\n' % algo
@@ -68,7 +71,11 @@ if resume:
             break
 
 open(path, 'w').write(''.join(lines))
-print('astlingen.train -> %s' % algo)
+print('%s.train -> %s' % (scenario, algo))
 PYEOF
 
-exec python -u train_astlingen.py
+if [ "$SCENARIO" = "chaohu" ]; then
+    exec python -u train_chaohu.py
+else
+    exec python -u train_astlingen.py
+fi

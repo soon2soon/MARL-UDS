@@ -175,6 +175,42 @@ docker run --rm -v "$PWD/storm/model:/work/storm/model" \
 
 베이스라인 재현도 같은 방식: `-e ALGO=DQN` × 3시드.
 
+## 7.5 실네트워크 시나리오 — Chaohu (실도시 합류식 배수망)
+
+Zhang 리포에는 벤치마크(Astlingen) 외에 **실전 사례**가 포함되어
+있습니다: Chaohu(중국 안후이성 차오후시) 실도시 합류식 하수망.
+펌프장 2개(CC/JK)의 펌프 7개를 2개 멀티에이전트가 제어
+(액션 9×6), 설계강우 시나리오 20개 학습. 학습된 베이스라인
+체크포인트(VDN/DQN/IQL)도 리포에 포함되어 있어 비교 기준이
+명확합니다. Zhang 2023 논문의 실전 검증 챕터가 바로 이 시나리오로,
+"실네트워크에서 AMAF가 작동하는가"의 가장 빠른 검증 무대입니다.
+
+```bash
+# Chaohu에서 AMAF 학습
+docker run -d \
+  -v "$PWD/storm/model:/work/storm/model" \
+  -e SCENARIO=chaohu -e ALGO=AMAF -e SEED=11 \
+  --name chaohu_amaf_s11 \
+  marl-uds:amaf
+
+# Chaohu 베이스라인 (배포 체크포인트 보유)
+docker run -d \
+  -v "$PWD/storm/model:/work/storm/model" \
+  -e SCENARIO=chaohu -e ALGO=VDN -e SEED=11 \
+  --name chaohu_vdn_s11 \
+  marl-uds:amaf
+```
+
+결과 디렉터리: `storm/model/chaohu_AMAF_seed11/` 등. 로그/재개
+방식은 §4~§5와 동일합니다. Chaohu는 `train_chaohu.py`를 사용하며
+엔트리포인트가 `SCENARIO=chaohu`일 때 자동으로 이 스크립트를
+구동합니다.
+
+추가 시나리오: 리포의 `storm/model/chaohu202209/`에 Zhang가
+2022-09 버전 Chaohu 모델 추가 체크포인트가 있습니다 (논문 후속
+업데이트). 첫 실험은 위의 표준 `chaohu_*` 체크포인트 세트로
+하는 것을 권장합니다.
+
 ## 8. 문제 해결
 
 | 증상 | 해결 |

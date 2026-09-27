@@ -1,0 +1,10 @@
+# .dockerignore — keep the image lean; results/ and model/ are run
+# artifacts (mounted at runtime), not build inputs.
+storm/results
+storm/model
+**/__pycache__
+**/*.pyc
+.git
+.gitignore
+*.md
+!README_AMAF.md

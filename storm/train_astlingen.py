@@ -18,6 +18,17 @@ from functools import reduce
 import pandas as pd
 HERE = os.path.dirname(__file__)
 
+# [amaf branch] Reproducibility: seed all RNGs from the SEED env var
+# (default 11) so the multi-seed protocol is scriptable (docker/entrypoint.sh
+# sets it). NOTE: mp.Pool fork workers inherit the parent RNG state; runs
+# are seeded but bit-exact replay also depends on pool task assignment.
+import random
+import numpy as np
+SEED = int(os.environ.get('SEED', 11))
+random.seed(SEED)
+np.random.seed(SEED)
+tf.random.set_seed(SEED)
+
 
 def interact_steps(env,arg,event=None,train=True,on_policy=False):
     if type(arg) is Arguments:

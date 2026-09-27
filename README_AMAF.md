@@ -17,6 +17,8 @@ strategy trained and evaluated under the paper's exact protocol.
 
 ## Quick start (Docker)
 
+**Full install/run/resume/multi-seed guide: [`docker/RUN_GUIDE.md`](docker/RUN_GUIDE.md) (한국어)**
+
 ```bash
 git clone https://github.com/soon2soon/MARL-UDS.git
 cd MARL-UDS && git checkout amaf

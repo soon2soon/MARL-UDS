@@ -270,6 +270,51 @@ chaohu:
 astlingen:
   train: PPO
   # strategy
+  AMAF:
+    # Arguments for the agent structure — AMAF-DQN port (soon2soon/AMAF)
+    agent_class: AMAF # agent class
+    if_mac: True # per-valve Q heads (8/7/6/7, sum=28) — matches the shipped DQN ckpt structure
+    if_norm: False # if use normalized state
+    if_double: True # if use double network
+    if_recurrent: False # if use recurrent
+    seq_len: 3 # recurrent sequence length
+    net_dim: 256 # dimension of hidden layers (matches DQN ckpt trunk)
+    num_layer: 3 # number of network layers
+    if_dueling: True # if use dueling layer
+
+    # AMAF-specific arguments
+    n_heads: 4 # number of advantage heads H
+    gate_mode: adaptive # adaptive | uniform
+    fusion_mode: uniform_anchored # direct | uniform_anchored
+    trust_init: 0.1 # initial state trust tau(s)=sigmoid bias
+
+    # Arguments for the training
+    max_capacity: 1048576 # 2 ** 20 maximum capacity for the replay buffer
+    batch_size: 512 # batch size of the training data
+    gamma: 0.98 # discouted rate
+    learning_rate: 0.001 # learning rate
+    update_interval: 0.05 # update tau for target network
+    repeat_times: 2 # repeatedly update network using ReplayBuffer
+    loss_function: MeanSquaredError # loss function
+    optimizer: Adam # optimizer
+
+    # Arguments for the exploration
+    total_episodes: 5000 # training steps
+    pre_episodes: 0 # pre-sampling steps
+    ini_episodes: 0 # initial episodes n
+    explore_events: 50 # exploration events
+    epsilon_decay: 0.999 # epsilon-greedy noise
+    epsilon_min: 0.1 # minimum epsilon-greedy noise
+
+    # Arguments for the evaluation
+    eval_events: 1 # evaluation events
+    eval_gap: 10 # evaluate the agent per eval_gap
+    save_gap: 100 # save the agent & state_norm per save_gap
+    cwd: ./model/astlingen_AMAF # the working directory
+    if_remove: False # if remove the cwd or keep it
+    if_load: False # if load the current model
+    replace_rain: False # if replace the rainfall events
+    processes: 5 # if use multiprocessing
   VDN:
     # Arguments for the agent structure
     agent_class: VDN # agent class
